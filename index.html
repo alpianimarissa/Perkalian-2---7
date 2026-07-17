@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Tantangan Perkalian Ceria</title>
+    
+    <!-- Tailwind CSS untuk tata letak modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Fredoka & Quicksand -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome untuk ikon dekoratif -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- KaTeX untuk render matematika berkualitas tinggi -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #F8FAFC;
+        }
+        h1, h2, h3, h4, .font-fun {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.08), 0 8px 15px -6px rgba(99, 102, 241, 0.04);
+        }
+        /* Sembunyikan spin wheel di input number */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        @keyframes popUp {
+            0% { transform: scale(0.96); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-700">
+
+    <header class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white py-5 px-4 md:px-8 shadow-md">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                    <span class="animate-bounce">🎯</span>
+                </div>
+                <div>
+                    <h1 class="font-bold text-2xl tracking-wide">Tantangan Perkalian Ceria</h1>
+                    <p class="text-xs text-indigo-100 font-semibold">Yuk, uji kemampuan berhitungmu dengan cara yang seru! 🚀</p>
+                </div>
+            </div>
+            
+            <!-- Papan Skor -->
+            <div class="flex items-center gap-3">
+                <div class="bg-white/10 border border-white/20 px-3 py-1.5 rounded-2xl flex items-center gap-2">
+                    <span class="text-lg">🔥</span>
+                    <div>
+                        <p class="text-[9px] text-indigo-100 font-extrabold uppercase leading-none">Beruntun</p>
+                        <p id="streak-counter" class="text-sm font-bold text-white leading-tight">0</p>
+                    </div>
+                </div>
+                <div class="bg-amber-400 border border-amber-300 px-4 py-1.5 rounded-2xl flex items-center gap-2 text-slate-900 shadow-sm">
+                    <span class="text-lg">⭐</span>
+                    <div>
+                        <p class="text-[9px] text-amber-900 font-extrabold uppercase leading-none">Skor</p>
+                        <p id="score-counter" class="text-sm font-black leading-tight">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl w-full mx-auto p-4 md:p-6 flex-grow flex flex-col gap-6">
+        
+        <!-- Pemilih Kategori Tingkat Kesulitan -->
+        <div class="bg-white p-4 rounded-3xl card-shadow border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-4">
+            <span class="text-sm font-bold text-slate-600 flex items-center gap-2">
+                <i class="fa-solid fa-gamepad text-indigo-500"></i> Pilih Kategori Soal Perkalian:
+            </span>
+            <div class="grid grid-cols-3 gap-2 w-full md:w-auto">
+                <button onclick="selectCategory('2-4')" id="btn-cat-2-4" class="py-2.5 px-4 rounded-xl font-bold text-xs bg-indigo-600 text-white border-2 border-indigo-600 transition-all text-center flex items-center justify-center gap-1.5 shadow-sm">
+                    🍓 Perkalian 2 - 4
+                </button>
+                <button onclick="selectCategory('5-7')" id="btn-cat-5-7" class="py-2.5 px-4 rounded-xl font-bold text-xs bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-300 transition-all text-center flex items-center justify-center gap-1.5">
+                    🌈 Perkalian 5 - 7
+                </button>
+                <button onclick="selectCategory('2-7')" id="btn-cat-2-7" class="py-2.5 px-4 rounded-xl font-bold text-xs bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-300 transition-all text-center flex items-center justify-center gap-1.5">
+                    🌀 Campur (2 - 7)
+                </button>
+            </div>
+        </div>
+
+        <!-- Area Dua Kolom (Kiri: Kuis & Keypad, Kanan: Sahabat Visual Interaktif) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            
+            <!-- Kolom Kiri: Flashcard Kuis & Input Jawaban -->
+            <div class="lg:col-span-5 bg-white p-6 md:p-8 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between min-h-[460px] animate-pop">
+                <div class="w-full">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                        <span id="category-badge" class="bg-indigo-50 text-indigo-700 border border-indigo-100 font-extrabold px-3 py-1 rounded-full text-xs uppercase tracking-wide">
+                            Kategori: Perkalian 2 - 4
+                        </span>
+                        <span class="text-xs font-bold text-slate-400">Acak Tak Terbatas</span>
+                    </div>
+
+                    <!-- Kotak Pertanyaan Math -->
+                    <div class="my-6 py-8 px-4 bg-indigo-50/40 rounded-2xl border-2 border-dashed border-indigo-100 w-full flex flex-col items-center justify-center gap-1">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Berapakah hasil dari:</p>
+                        <div id="quiz-katex-question" class="text-4xl md:text-5xl font-extrabold text-indigo-900 my-2">
+                            <!-- Diisi oleh JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input dan Keypad -->
+                <div class="space-y-4">
+                    <div class="relative">
+                        <input type="number" id="answer-input" class="w-full text-center text-4xl font-extrabold p-3 border-4 border-slate-100 rounded-2xl focus:border-indigo-500 focus:outline-none transition-all tracking-wider placeholder-indigo-200 bg-slate-50 text-indigo-800" placeholder="Ketik Jawaban..." onkeydown="if(event.key==='Enter') submitQuizAnswer()">
+                        <button onclick="clearQuizInput()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-slate-200 hover:bg-slate-300 active:scale-95 rounded-full flex items-center justify-center text-slate-600 transition-all">
+                            <i class="fa-solid fa-backspace"></i>
+                        </button>
+                    </div>
+
+                    <!-- On-Screen Keypad -->
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button onclick="pressQuizKey('1')" class="bg-slate-50 hover:bg-indigo-50 text-slate-800 font-bold p-3 rounded-xl text-xl border-b-4 border-slate-200 hover:border-indigo-400 active:translate-y-0.5 transition-all">1</button>
+                        <button onclick="pressQuizKey('2')" class="bg-slate-50 hover:bg-indigo-50 text-slate-800 font-bold p-3 rounded-xl text-xl border-b-4 border-slate-200 hover:border-indigo-400 active:translate-y-0.5 transition-all">2</button>
+                        <button onclick="pressQuizKey('3')" class="bg-slate-50 hover:bg-indigo-50 text-slate-800 font-bold p-3 rounded-xl text-xl border-b-4 border-slate-200 hover:border-indigo-400 active:translate-y-0.5 transition-all">3</button>
+                        <button onclick="pressQuizKey('4')" class="bg-slate-50 hover:bg-indigo-50 text-slate-800 font-bold p-3 rounded-xl text-xl border-b-4 border-slate-200 hover:border-indigo-400 active:translate-y-0.5 transition-all">4</button>
+                        <button onclick="pressQuizKey('5')" class="bg-slate-50 hover:bg-indigo-50 text-slate-800 font-bold p-3 rounded-xl text-xl border-b-4 border-slate-200 hover:border-indigo-400 active:translate-y-0.5 transition-all">5</button>
+                        <button onclick="pressQuizKey('6')" class="bg-slate-50 hover:bg-indigo-50 text-slate-800 font-bold p-3 rounded-xl text-xl border-b-4 border-slate-200 hover:border-indigo-400 active:translate-y-0.5 transition-all">6</button>
+                        <button onclick="pressQuizKey('7')" class="bg-slate-50 hover:bg-indigo-50 text-slate-800 font-bold p-3 rounded-xl text-xl border-b-4 border-slate-200 hover:border-indigo-400 active:translate-y-0.5 transition-all">7</button>
+                        <button onclick="pressQuizKey('8')" class="bg-slate-50 hover:bg-indigo-50 text-slate-800 font-bold p-3 rounded-xl text-xl border-b-4 border-slate-200 hover:border-indigo-400 active:translate-y-0.5 transition-all">8</button>
+                        <button onclick="pressQuizKey('9')" class="bg-slate-50 hover:bg-indigo-50 text-slate-800 font-bold p-3 rounded-xl text-xl border-b-4 border-slate-200 hover:border-indigo-400 active:translate-y-0.5 transition-all">9</button>
+                        <button onclick="clearQuizInput()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold p-3 rounded-xl text-xs border-b-4 border-rose-200 hover:border-rose-300 active:translate-y-0.5 transition-all">Hapus</button>
+                        <button onclick="pressQuizKey('0')" class="bg-slate-50 hover:bg-indigo-50 text-slate-800 font-bold p-3 rounded-xl text-xl border-b-4 border-slate-200 hover:border-indigo-400 active:translate-y-0.5 transition-all">0</button>
+                        <button onclick="submitQuizAnswer()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold p-3 rounded-xl text-xs border-b-4 border-emerald-200 hover:border-emerald-300 active:translate-y-0.5 transition-all">Ok</button>
+                    </div>
+                </div>
+
+                <!-- Notifikasi Umpan Balik Instan -->
+                <div id="quiz-feedback" class="hidden p-3 mt-3 rounded-2xl font-bold text-center text-xs transition-all">
+                    Pesan Umpan Balik Kuis
+                </div>
+
+                <!-- Tombol Kendali Utama -->
+                <div class="flex gap-3 mt-4">
+                    <button onclick="skipQuizQuestion()" class="flex-1 bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-bold py-3.5 px-4 rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 text-xs">
+                        <i class="fa-solid fa-shuffle"></i> Lewati
+                    </button>
+                    <button id="quiz-submit-btn" onclick="submitQuizAnswer()" class="flex-[2] bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 active:scale-95 text-white font-extrabold py-3.5 px-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 text-xs">
+                        Periksa Jawaban <i class="fa-solid fa-circle-check"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Sahabat Visual Interaktif (Visual Helper) -->
+            <div class="lg:col-span-7 bg-white p-6 rounded-3xl card-shadow border border-slate-100 flex flex-col justify-between min-h-[460px]">
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                        <div>
+                            <h3 class="font-bold text-indigo-950 text-sm flex items-center gap-2">
+                                <span class="text-xl">💡</span> Sahabat Bantuan Visual
+                            </h3>
+                            <p class="text-[10px] text-slate-400">Lihat kelompok gambar di bawah ini untuk membantumu berhitung!</p>
+                        </div>
+                        <span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-2.5 py-1 rounded-full border border-amber-100">Mudah Dimengerti</span>
+                    </div>
+
+                    <!-- Wadah Utama Render Gambar & Penjumlahan Berulang -->
+                    <div id="visual-helper-container" class="space-y-4 py-2">
+                        <!-- Diisi secara dinamis oleh JavaScript -->
+                    </div>
+                </div>
+
+                <div class="text-[10px] text-slate-400 text-center mt-4 border-t border-slate-100 pt-3 italic">
+                    Perkalian adalah menjumlahkan angka yang sama berulang kali secara teratur.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Milestone Sertifikat -->
+        <div id="milestone-box" class="bg-white p-6 rounded-3xl card-shadow border border-slate-100 mt-2 text-center max-w-2xl mx-auto w-full">
+            <span class="text-3xl">🏆</span>
+            <h3 class="font-bold text-indigo-900 text-lg mt-1">Sertifikat Penghargaan</h3>
+            <p class="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                Kumpulkan skor minimal <span class="font-bold text-indigo-600">50 poin</span> untuk membuka dan mengklaim sertifikat kelulusan istimewamu!
+            </p>
+
+            <div id="claim-form" class="mt-4 flex flex-col sm:flex-row gap-3 max-w-md mx-auto justify-center">
+                <input type="text" id="cert-name-input" class="p-2.5 border-2 border-slate-200 rounded-xl focus:border-indigo-500 focus:outline-none font-bold text-sm text-center" placeholder="Ketik Nama Lengkapmu..." disabled>
+                <button id="cert-btn" onclick="generateCertificate()" class="bg-slate-300 text-slate-500 font-extrabold px-6 py-2.5 rounded-xl transition-all text-xs cursor-not-allowed" disabled>
+                    Buat Sertifikat 📜
+                </button>
+            </div>
+
+            <!-- Tampilan Sertifikat Dinamis -->
+            <div id="certificate-wrapper" class="hidden mt-6 w-full max-w-lg mx-auto bg-amber-50/50 border-4 border-amber-300 rounded-3xl p-6 card-shadow relative overflow-hidden text-center animate-pop">
+                <!-- Ornamen Pojok -->
+                <div class="absolute -top-10 -left-10 w-20 h-20 bg-amber-300 rounded-full opacity-20"></div>
+                <div class="absolute -bottom-10 -right-10 w-20 h-20 bg-amber-300 rounded-full opacity-20"></div>
+
+                <span class="text-3xl">👑</span>
+                <h4 class="font-bold text-amber-800 text-lg tracking-wider mt-1 font-fun">SERTIFIKAT PENGHARGAAN</h4>
+                <p class="text-[8px] text-amber-600 font-extrabold uppercase tracking-widest leading-none mt-1">JAWARA KUIS PERKALIAN</p>
+                
+                <div class="h-0.5 w-1/4 bg-amber-300 mx-auto my-3"></div>
+
+                <p class="text-[10px] text-slate-500 italic">Sertifikat ini dengan bangga dipersembahkan kepada:</p>
+                <h3 id="cert-name-display" class="font-extrabold text-indigo-900 text-xl my-2 font-fun uppercase">NAMA SISWA</h3>
+                
+                <p class="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
+                    Telah sukses menyelesaikan tantangan kuis matematika dan berhasil mengumpulkan skor gemilang <span id="cert-score-display" class="font-bold text-indigo-800">50</span> poin dalam uji kecepatan berhitung!
+                </p>
+
+                <div class="flex justify-between items-center mt-6 text-[9px] text-slate-400">
+                    <div class="text-left">
+                        <p class="font-bold text-slate-500">Materi Uji</p>
+                        <p class="italic">Perkalian Dasar</p>
+                    </div>
+                    <div class="text-amber-500 text-lg">
+                        ⭐⭐⭐⭐⭐
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-slate-500">Tanggal Kelulusan</p>
+                        <p class="italic" id="cert-date">17 Juli 2026</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-slate-400 py-4 border-t border-slate-200 bg-white">
+        <p class="max-w-md mx-auto leading-relaxed">Dirancang untuk media latihan perkalian mandiri secara visual, menyenangkan, dan ramah anak.</p>
+    </footer>
+
+    <script>
+        // --- SOUND EFFECTS (Web Audio API Synthesizer) ---
+        class SoundEffects {
+            constructor() {
+                this.ctx = null;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playTone(freq, type, duration, vol) {
+                this.init();
+                if (!this.ctx) return;
+                try {
+                    let osc = this.ctx.createOscillator();
+                    let gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    
+                    gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime + duration);
+                    
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e) {
+                    console.log("Audio did not play.");
+                }
+            }
+            playSuccess() {
+                this.playTone(523.25, 'triangle', 0.15, 0.15); // C5
+                setTimeout(() => {
+                    this.playTone(659.25, 'triangle', 0.25, 0.15); // E5
+                }, 100);
+            }
+            playError() {
+                this.playTone(220, 'sawtooth', 0.3, 0.1); // A3
+            }
+            playClick() {
+                this.playTone(440, 'sine', 0.05, 0.1);
+            }
+        }
+        const sfx = new SoundEffects();
+
+        // --- STATE APLIKASI ---
+        const state = {
+            category: '2-4', 
+            num1: 0,
+            num2: 0,
+            correctAnswer: 0,
+            score: 0,
+            streak: 0
+        };
+
+        // --- STREAMING_CHUNK: Logika Penggantian Kategori Kuis ---
+        // --- PEMILIHAN KATEGORI ---
+        function selectCategory(cat) {
+            sfx.playClick();
+            state.category = cat;
+
+            // Perbarui gaya tombol terpilih
+            ['2-4', '5-7', '2-7'].forEach(c => {
+                const btn = document.getElementById(`btn-cat-${c}`);
+                if (c === cat) {
+                    btn.className = "py-2.5 px-4 rounded-xl font-bold text-xs bg-indigo-600 text-white border-2 border-indigo-600 transition-all text-center flex items-center justify-center gap-1.5 shadow-sm";
+                } else {
+                    btn.className = "py-2.5 px-4 rounded-xl font-bold text-xs bg-white text-slate-600 border-2 border-slate-200 hover:border-indigo-300 transition-all text-center flex items-center justify-center gap-1.5";
+                }
+            });
+
+            // Perbarui Lencana Kategori
+            const badge = document.getElementById('category-badge');
+            const catNames = {
+                '2-4': 'Kategori: Perkalian 2 - 4',
+                '5-7': 'Kategori: Perkalian 5 - 7',
+                '2-7': 'Kategori: Campur (2 - 7)'
+            };
+            badge.innerText = catNames[cat];
+
+            generateNewQuestion();
+        }
+
+        // --- STREAMING_CHUNK: Membuat Soal Acak Baru dan Render Visual ---
+        // --- PEMBUATAN SOAL ACAK ---
+        function generateNewQuestion() {
+            let factor1Range = [];
+            if (state.category === '2-4') {
+                factor1Range = [2, 3, 4];
+            } else if (state.category === '5-7') {
+                factor1Range = [5, 6, 7];
+            } else {
+                factor1Range = [2, 3, 4, 5, 6, 7];
+            }
+
+            // Pilih factor1 acak dari kategori
+            const num1 = factor1Range[Math.floor(Math.random() * factor1Range.length)];
+            // Pilih factor2 secara umum dari rentang 1 - 10
+            const num2 = Math.floor(Math.random() * 9) + 2; // Menggunakan pengali 2 - 10 agar lebih variatif
+
+            state.num1 = num1;
+            state.num2 = num2;
+            state.correctAnswer = num1 * num2;
+
+            // Render Persamaan Matematika KaTeX
+            const qContainer = document.getElementById('quiz-katex-question');
+            katex.render(`${num1} \\times ${num2} = ?`, qContainer, {
+                throwOnError: false
+            });
+
+            // Sembunyikan notifikasi feedback lama
+            const fb = document.getElementById('quiz-feedback');
+            fb.classList.add('hidden');
+
+            // Hapus isian jawaban lama
+            document.getElementById('answer-input').value = '';
+
+            // Render Bantuan Visual Cantik (Sahabat Visual)
+            renderVisualHelper(num1, num2);
+
+            // Fokuskan kembali ke input
+            document.getElementById('answer-input').focus();
+        }
+
+        // --- STREAMING_CHUNK: Menyusun Fungsi Render "Sahabat Visual" ---
+        // --- RENDER VISUAL HELPER BARU ---
+        function renderVisualHelper(num1, num2) {
+            const helperContainer = document.getElementById('visual-helper-container');
+            helperContainer.innerHTML = '';
+            
+            // Daftar emoji ramah anak
+            const cuteEmojis = ['🍓', '🍊', '🍩', '🌟', '🎈', '🍪', '🧸', '🌸', '🍎', '🧁'];
+            const emoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
+            
+            // Info Header Konsep
+            const infoHeader = document.createElement('div');
+            infoHeader.className = "text-center mb-4";
+            infoHeader.innerHTML = `
+                <p class="text-xs md:text-sm font-bold text-indigo-900 bg-indigo-50 border border-indigo-100 inline-block px-4 py-1.5 rounded-full">
+                    💡 Konsep dasar: Ada <span class="text-rose-500 font-extrabold">${num1} Kelompok</span> yang masing-masing berisi <span class="text-rose-500 font-extrabold">${num2} ${emoji}</span>
+                </p>
+            `;
+            helperContainer.appendChild(infoHeader);
+
+            // Wadah Kartu Kelompok
+            const cardsWrapper = document.createElement('div');
+            // Menata grid kelompok agar responsif dan muat di layar
+            cardsWrapper.className = "grid gap-3 justify-center w-full";
+            if (num1 <= 3) {
+                cardsWrapper.classList.add("grid-cols-1", "sm:grid-cols-3");
+            } else if (num1 === 4) {
+                cardsWrapper.classList.add("grid-cols-2", "sm:grid-cols-4");
+            } else {
+                cardsWrapper.classList.add("grid-cols-3", "sm:grid-cols-6");
+            }
+
+            for (let i = 0; i < num1; i++) {
+                const card = document.createElement('div');
+                card.className = "bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-3 flex flex-col items-center justify-between shadow-sm hover:scale-105 transition-transform duration-200";
+                
+                // Area isi item/emoji di dalam kartu kelompok
+                const itemsGrid = document.createElement('div');
+                itemsGrid.className = "flex flex-wrap gap-1 justify-center items-center my-auto min-h-[50px] max-w-[120px]";
+                for (let j = 0; j < num2; j++) {
+                    const item = document.createElement('span');
+                    item.className = "text-xl md:text-2xl drop-shadow-sm transform hover:scale-125 transition-transform cursor-pointer select-none";
+                    item.innerText = emoji;
+                    itemsGrid.appendChild(item);
+                }
+                
+                card.appendChild(itemsGrid);
+
+                // Label jumlah item per kelompok
+                const label = document.createElement('div');
+                label.className = "mt-2.5 text-[10px] font-black text-amber-800 bg-white/95 px-2.5 py-0.5 rounded-full border border-amber-100 shadow-xs";
+                label.innerText = `Grup ${i+1}: ${num2}`;
+                card.appendChild(label);
+                
+                cardsWrapper.appendChild(card);
+            }
+            
+            helperContainer.appendChild(cardsWrapper);
+
+            // Menampilkan rumus penjumlahan berulang
+            const additionArray = Array(num1).fill(num2);
+            const additionText = additionArray.join(' + ');
+            
+            const footerAddition = document.createElement('div');
+            footerAddition.className = "mt-4 p-3.5 bg-violet-50/50 border-2 border-dashed border-violet-100 rounded-2xl text-center";
+            footerAddition.innerHTML = `
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Penjumlahan Berulang</p>
+                <p class="text-base md:text-lg font-black text-violet-950 font-fun leading-tight">
+                    ${additionText} = <span class="text-xl text-rose-500 font-black">${num1 * num2}</span>
+                </p>
+            `;
+            helperContainer.appendChild(footerAddition);
+        }
+
+        // --- INPUT KENDALI KEYPAD ---
+        function pressQuizKey(key) {
+            sfx.playClick();
+            const input = document.getElementById('answer-input');
+            input.value += key;
+            input.focus();
+        }
+
+        function clearQuizInput() {
+            sfx.playClick();
+            document.getElementById('answer-input').value = '';
+            document.getElementById('answer-input').focus();
+        }
+
+        function skipQuizQuestion() {
+            sfx.playClick();
+            generateNewQuestion();
+        }
+
+        // --- STREAMING_CHUNK: Logika Validasi Jawaban Siswa ---
+        // --- PEMERIKSA JAWABAN ---
+        function submitQuizAnswer() {
+            const inputEl = document.getElementById('answer-input');
+            const userAns = parseInt(inputEl.value);
+            const fb = document.getElementById('quiz-feedback');
+
+            if (isNaN(userAns)) {
+                sfx.playError();
+                fb.innerText = "Masukkan jawaban perkalianmu terlebih dahulu!";
+                fb.className = "p-3 mt-3 rounded-2xl font-bold text-center text-xs transition-all bg-amber-100 text-amber-700 block animate-bounce";
+                return;
+            }
+
+            if (userAns === state.correctAnswer) {
+                // Jawaban Benar
+                sfx.playSuccess();
+                state.score += 10;
+                state.streak += 1;
+
+                fb.innerHTML = `🎉 Hebat! ${state.num1} &times; ${state.num2} = <strong>${state.correctAnswer}</strong> adalah BENAR!`;
+                fb.className = "p-3 mt-3 rounded-2xl font-bold text-center text-xs transition-all bg-emerald-100 text-emerald-800 block";
+
+                // Perbarui Papan Skor UI
+                document.getElementById('score-counter').innerText = state.score;
+                document.getElementById('streak-counter').innerText = state.streak;
+
+                // Cek Milestones Skor untuk mengaktifkan Sertifikat
+                checkMilestones();
+
+                // Lanjut ke soal berikutnya secara otomatis
+                setTimeout(() => {
+                    generateNewQuestion();
+                }, 1600);
+
+            } else {
+                // Jawaban Salah
+                sfx.playError();
+                state.streak = 0; // Reset beruntun
+                document.getElementById('streak-counter').innerText = state.streak;
+
+                fb.innerHTML = `🌸 Hasil belum tepat. Yuk perhatikan kelompok gambar di sebelah kanan untuk menghitung!`;
+                fb.className = "p-3 mt-3 rounded-2xl font-bold text-center text-xs transition-all bg-rose-100 text-rose-700 block";
+                inputEl.focus();
+            }
+        }
+
+        // --- VALIDASI MILESTONE SERTIFIKAT ---
+        function checkMilestones() {
+            const certNameInput = document.getElementById('cert-name-input');
+            const certBtn = document.getElementById('cert-btn');
+
+            if (state.score >= 50) {
+                // Aktifkan input nama dan tombol cetak sertifikat
+                certNameInput.removeAttribute('disabled');
+                certBtn.removeAttribute('disabled');
+                certBtn.className = "bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold px-6 py-2.5 rounded-xl transition-all text-xs cursor-pointer shadow-md";
+                certNameInput.className = "p-2.5 border-2 border-indigo-300 rounded-xl focus:border-indigo-500 focus:outline-none font-bold text-sm text-center text-indigo-900 bg-indigo-50/20";
+            }
+        }
+
+        // --- STREAMING_CHUNK: Menampilkan Sertifikat Dinamis ---
+        function generateCertificate() {
+            const name = document.getElementById('cert-name-input').value.trim();
+            if (name === '') {
+                sfx.playError();
+                return;
+            }
+
+            sfx.playSuccess();
+            document.getElementById('cert-name-display').innerText = name;
+            document.getElementById('cert-score-display').innerText = state.score;
+
+            // Set Tanggal Hari Ini secara otomatis
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('cert-date').innerText = today.toLocaleDateString('id-ID', options);
+
+            // Munculkan Box Sertifikat
+            document.getElementById('certificate-wrapper').classList.remove('hidden');
+        }
+
+        // --- INITIALIZER AWAL MEMUAT HALAMAN ---
+        window.onload = function() {
+            generateNewQuestion();
+        };
+    </script>
+</body>
+</html>
